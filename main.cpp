@@ -1,111 +1,88 @@
 #include <iostream>
 #include <fstream>
-#include <iomanip>
+#include <vector>
+#include <string>
 using namespace std;
 
-const int QuestionNum = 20;
-const double PassingGrade = 70.0;
-
-void getGrades(char[], char[]);
-int CheckGrades(char[], char[], int[], char[QuestionNum][2]);
-void DisplayGrades(int[], char[QuestionNum][2], int);
+void getTeams(vector<string>& teams, vector<string>& winners);
+void Winner(const vector<string>& teams, const vector<string>& winners);
 
 int main()
 {
-    char AnswerKey[QuestionNum];
-    char StudentKey[QuestionNum];
-    int IncorrectAnswer[QuestionNum];
-    char AnswerFeedback[QuestionNum][2];
-    int IncorrectNum = 0;
+    vector<string> teams;
+    vector<string> winners;
 
-    getGrades(AnswerKey, StudentKey);
-
-    IncorrectNum = CheckGrades(AnswerKey, StudentKey, IncorrectAnswer, AnswerFeedback);
-
-    DisplayGrades(IncorrectAnswer, AnswerFeedback, IncorrectNum);
+    getTeams(teams, winners);
+    Winner(teams, winners);
 
     return 0;
 }
 
-// Reads answers from files into arrays
-void getGrades(char AnswerKey[], char StudentKey[])
+
+void getTeams(vector<string>& teams, vector<string>& winners)
 {
+    string team, winner;
     ifstream inputfile;
 
-    inputfile.open("CorrectAnswers.txt");
-
+    inputfile.open("Teams.txt");
     if (!inputfile)
     {
-        cerr << "The AnswerKey file failed to open." << endl;
+        cerr << "Failed to open Teams.txt file.\n";
         exit(1);
     }
-
-    for (int i = 0; i < QuestionNum; i++)
+    while (getline(inputfile, team))
     {
-        inputfile >> AnswerKey[i];
+        teams.push_back(team);
     }
     inputfile.close();
 
-    inputfile.open("StudentAnswers.txt");
-
+    inputfile.open("Winners.txt");
     if (!inputfile)
     {
-        cerr << "The StudentKey file failed to open." << endl;
+        cerr << "Failed to open Winners.txt file.\n";
         exit(1);
     }
-
-    for (int i = 0; i < QuestionNum; i++)
+    while (getline(inputfile, winner))
     {
-        inputfile >> StudentKey[i];
+        winners.push_back(winner);
     }
     inputfile.close();
 }
 
-// Compares answers and records incorrect responses
-int CheckGrades(char AnswerKey[], char StudentKey[], int IncorrectAnswer[], char AnswerFeedback[QuestionNum][2])
-{
-    int IncorrectAmount = 0;
 
-    for (int i = 0; i < QuestionNum; i++)
+void Winner(const vector<string>& teams, const vector<string>& winners)
+{
+    string choice;
+    int Wins = 0;
+
+    cout << "Here are the teams that have won the World Series:\n";
+    for (const string& name : teams)
     {
-        if (AnswerKey[i] != StudentKey[i])
+        cout << name << endl;
+    }
+
+    cout << "\nPlease enter the name of the team you would like to know the number of wins for (or enter 'Q' to quit): " << endl;
+
+    getline(cin, choice);
+
+    while (choice != "Q" && choice != "q")
+    {
+        Wins = 0;
+
+        for (const string& winner : winners)
         {
-            AnswerFeedback[IncorrectAmount][0] = AnswerKey[i];
-            AnswerFeedback[IncorrectAmount][1] = StudentKey[i];
-            IncorrectAnswer[IncorrectAmount] = i + 1;
-            IncorrectAmount++;
+            if (choice == winner)
+            {
+                Wins++;
+            }
         }
+
+        cout << choice << " has won the World Series " << Wins << " times." << endl;
+
+        cout << "\nEnter another team name, or 'Q' to quit: ";
+        getline(cin, choice); 
     }
 
-    return IncorrectAmount;
-}
-
-// Displays the results
-void DisplayGrades(int IncorrectAnswer[], char AnswerFeedback[QuestionNum][2], int IncorrectNum)
-{
-    cout << fixed << setprecision(2);
-
-    cout << "Exam Report:\n";
-    cout << "Number of Incorrect Answers: " << IncorrectNum << endl;
-
-    cout << "Missed Questions and Correct Answers:\n";
-    cout << "Question\tCorrect Answer\tStudent Answer\n";
-
-    for (int i = 0; i < IncorrectNum; i++)
-    {
-        cout << IncorrectAnswer[i] << "\t\t" << AnswerFeedback[i][0] << "\t\t" << AnswerFeedback[i][1] << endl;
-    }
-
-    double grade = (QuestionNum - IncorrectNum) / (double)QuestionNum * 100;
-
-    cout << "Final Grade: " << grade << "%\n";
-
-    if (grade >= PassingGrade)
-    {
-        cout << "Student passed the exam.\n";
-    }
-    else
-    {
-        cout << "Student failed the exam.\n";
-    }
+    cout << "Thank you for using the program." << endl;
+    return;
 }
