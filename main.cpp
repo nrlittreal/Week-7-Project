@@ -1,88 +1,128 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
+#include<iostream>
+
 using namespace std;
 
-void getTeams(vector<string>& teams, vector<string>& winners);
-void Winner(const vector<string>& teams, const vector<string>& winners);
+void CreateBoard(char board[3][3]);
+void PlaceBoard(char board[3][3], int);
+void CheckBoard(char board[3][3], int, int, int);
+void DisplayBoard(char board[3][3]);
+void Outcome(char board[3][3]);
 
 int main()
 {
-    vector<string> teams;
-    vector<string> winners;
 
-    getTeams(teams, winners);
-    Winner(teams, winners);
+    int turn;
+
+    char board[3][3] = {
+    {'?', '?', '?'},
+    {'?', '?', '?'},
+    {'?', '?', '?'}};
+
+    cout << "Welcome to Tic-Tac-Toe!" << endl << "Player 1 is X and Player 2 is O.\n" << "Player 1 goes first!\n";
+    
+    CreateBoard(board);
+
+    for (turn = 0; turn < 9; turn++)
+        {
+            PlaceBoard(board, turn);
+            Outcome(board);
+        }
 
     return 0;
 }
 
-
-void getTeams(vector<string>& teams, vector<string>& winners)
+void CreateBoard(char board[3][3])
 {
-    string team, winner;
-    ifstream inputfile;
+    cout << "    1 2 3" << endl << "   -------" << endl;
+    
+    for (int i = 0; i < 3; i++)
+        {
+            cout << "|" << i + 1 << "| ";
+            
+            for (int j = 0; j < 3; j++)
+                {
+                    cout << board[i][j] << " ";
+                }
+            cout << endl;
+        }  
+}
 
-    inputfile.open("Teams.txt");
-    if (!inputfile)
-    {
-        cerr << "Failed to open Teams.txt file.\n";
-        exit(1);
-    }
-    while (getline(inputfile, team))
-    {
-        teams.push_back(team);
-    }
-    inputfile.close();
+void PlaceBoard(char board[3][3], int turn)
+{
+    int row, col;
 
-    inputfile.open("Winners.txt");
-    if (!inputfile)
+    cout << "Please enter the row and column where you would like to place your mark: " << endl;
+
+    cin >> row >> col;
+
+    CheckBoard(board, row, col, turn);
+}
+
+void CheckBoard(char board[3][3], int row, int col, int turn)
+{
+    while (board[row - 1][col - 1] != '?')
     {
-        cerr << "Failed to open Winners.txt file.\n";
-        exit(1);
+        cout << "That spot is already taken. Please choose another spot.\n";
+
+        cin >> row >> col;
     }
-    while (getline(inputfile, winner))
-    {
-        winners.push_back(winner);
-    }
-    inputfile.close();
+    board[row - 1][col - 1] = turn % 2 == 0 ? 'X' : 'O';
+
+    DisplayBoard(board);
+}
+
+void DisplayBoard(char board[3][3])
+{
+    cout << "    1 2 3" << endl << "   -------" << endl;
+
+    for (int i = 0; i < 3; i++)
+        {
+            cout << "|" << i + 1 << "| ";
+
+            for (int j = 0; j < 3; j++)
+                {
+                    cout << board[i][j] << " ";
+                }
+            cout << endl;
+        }
 }
 
 
-void Winner(const vector<string>& teams, const vector<string>& winners)
+void Outcome(char board[3][3])
 {
-    string choice;
-    int Wins = 0;
-
-    cout << "Here are the teams that have won the World Series:\n";
-    for (const string& name : teams)
-    {
-        cout << name << endl;
-    }
-
-    cout << "\nPlease enter the name of the team you would like to know the number of wins for (or enter 'Q' to quit): " << endl;
-
-    getline(cin, choice);
-
-    while (choice != "Q" && choice != "q")
-    {
-        Wins = 0;
-
-        for (const string& winner : winners)
+    for (int i = 0; i < 3; i++)
         {
-            if (choice == winner)
+            if (board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != '?')
             {
-                Wins++;
+                cout << "Player " << (board[i][0] == 'X' ? "1" : "2") << " wins!\n";
+                exit(1);
             }
         }
-
-        cout << choice << " has won the World Series " << Wins << " times." << endl;
-
-        cout << "\nEnter another team name, or 'Q' to quit: ";
-        getline(cin, choice); 
+    for (int j = 0; j < 3; j++)
+        {
+            if (board[0][j] == board[1][j] && board[1][j] == board[2][j] && board[0][j] != '?')
+            {
+                cout << "Player " << (board[0][j] == 'X' ? "1" : "2") << " wins!\n";
+                exit(1);
+            }
+        }
+    if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != '?')
+    {
+        cout << "Player " << (board[0][0] == 'X' ? "1" : "2") << " wins!\n";
+        exit(1);
     }
-
-    cout << "Thank you for using the program." << endl;
-    return;
+    else if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != '?')
+    {
+        cout << "Player " << (board[0][2] == 'X' ? "1" : "2") << " wins!\n";
+        exit(1);
+    }
+    else if (board[0][0] != '?' && board[0][1] != '?' && board[0][2] != '?' && board[1][0] != '?' && board[1][1] != '?' && board[1][2] != '?' && board[2][0] != '?' && board[2][1] != '?' && board[2][2] != '?')
+    {
+        cout << "It's a tie!\n";
+        return;
+    }
+    else
+    {
+        return;
+    }
 }
